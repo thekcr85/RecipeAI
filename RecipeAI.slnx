@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="src/RecipeAI.Application/RecipeAI.Application.csproj" />
+  <Project Path="src/RecipeAI.Domain/RecipeAI.Domain.csproj" />
+  <Project Path="src/RecipeAI.Infrastructure/RecipeAI.Infrastructure.csproj" />
+  <Project Path="src/RecipeAI.Web/RecipeAI.Web.csproj" />
+</Solution>
