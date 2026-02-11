@@ -8,6 +8,7 @@ using RecipeAI.Infrastructure.AI.Options;
 using RecipeAI.Infrastructure.AI.Services;
 using RecipeAI.Infrastructure.Data;
 using RecipeAI.Infrastructure.Repositories;
+using RecipeAI.Infrastructure.Services;
 
 namespace RecipeAI.Infrastructure;
 
@@ -27,6 +28,9 @@ public static class DependencyInjection
 		// Repositories
 		services.AddScoped<IMealPlanRepository, MealPlanRepository>();
 		services.AddScoped<IRecipeRepository, RecipeRepository>();
+
+		// Domain Services
+		services.AddScoped<IMealPlanningService, MealPlanningDomainService>();
 
 		// OpenAI
 		services.Configure<OpenAISettings>(configuration.GetSection(OpenAISettings.SectionName));
