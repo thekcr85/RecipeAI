@@ -1,0 +1,126 @@
+﻿@page "/meal-plan/{Id:int}"
+@using RecipeAI.Application.DTOs
+@using RecipeAI.Application.Services
+@inject MealPlanningService MealPlanningService
+@rendermode InteractiveServer
+
+<PageTitle>Plan Posiłków</PageTitle>
+
+@if (isLoading)
+{
+	<div class="text-center">
+		<div class="spinner-border" role="status">
+			<span class="visually-hidden">Ładowanie...</span>
+		</div>
+	</div>
+}
+else if (mealPlan == null)
+{
+	<div class="alert alert-warning">Plan nie został znaleziony</div>
+}
+else
+{
+	<h2>@mealPlan.Name</h2>
+
+	<div class="row mb-4">
+		<div class="col-md-6">
+			<div class="card">
+				<div class="card-header">
+					<h5>Informacje</h5>
+				</div>
+				<div class="card-body">
+					<p><strong>Typ Diety:</strong> @mealPlan.DietType</p>
+					<p><strong>Liczba Dni:</strong> @mealPlan.NumberOfDays</p>
+					<p><strong>Cel Kaloryczny:</strong> @mealPlan.TargetCalories kcal/dzień</p>
+					<p><strong>Całkowity Koszt:</strong> @mealPlan.TotalCost.ToString("F2") PLN</p>
+					<p><strong>Utworzono:</strong> @mealPlan.CreatedAt.ToString("dd.MM.yyyy HH:mm")</p>
+				</div>
+			</div>
+		</div>
+
+		@if (mealPlan.NutritionSummary != null)
+		{
+			<div class="col-md-6">
+				<div class="card">
+					<div class="card-header">
+						<h5>Podsumowanie Żywieniowe</h5>
+					</div>
+					<div class="card-body">
+						<p><strong>Średnio Kalorii/Dzień:</strong> @mealPlan.NutritionSummary.AverageDailyCalories kcal</p>
+						<p><strong>Białko:</strong> @mealPlan.NutritionSummary.TotalProteinGrams.ToString("F1") g (@mealPlan.NutritionSummary.ProteinPercentage%)</p>
+						<p><strong>Węglowodany:</strong> @mealPlan.NutritionSummary.TotalCarbsGrams.ToString("F1") g (@mealPlan.NutritionSummary.CarbsPercentage%)</p>
+						<p><strong>Tłuszcze:</strong> @mealPlan.NutritionSummary.TotalFatGrams.ToString("F1") g (@mealPlan.NutritionSummary.FatPercentage%)</p>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+
+	<h3>Przepisy</h3>
+	@foreach (var dayGroup in mealPlan.Recipes.GroupBy(r => r.DayNumber).OrderBy(g => g.Key))
+	{
+		<div class="card mb-3">
+			<div class="card-header">
+				<h5>Dzień @dayGroup.Key</h5>
+			</div>
+			<div class="card-body">
+				@foreach (var recipe in dayGroup.OrderBy(r => r.MealType))
+				{
+					<div class="mb-3 pb-3 border-bottom">
+						<h6>@recipe.MealType - @recipe.Name</h6>
+						<p class="text-muted">
+							⏱️ @recipe.PreparationTimeMinutes min | 
+							🔥 @recipe.Calories kcal | 
+							💰 @recipe.EstimatedCost.ToString("F2") PLN
+						</p>
+						<p><strong>Makroskładniki:</strong> 
+							Białko: @recipe.ProteinGrams g | 
+							Węglowodany: @recipe.CarbsGrams g | 
+							Tłuszcze: @recipe.FatGrams g
+						</p>
+						<p><strong>Instrukcje:</strong> @recipe.Instructions</p>
+						<p><strong>Składniki:</strong></p>
+						<ul>
+							@foreach (var ingredient in recipe.Ingredients)
+							{
+								<li>@ingredient.Name - @ingredient.Quantity @ingredient.Unit (@ingredient.Cost.ToString("F2") PLN)</li>
+							}
+						</ul>
+					</div>
+				}
+			</div>
+		</div>
+	}
+
+	@if (mealPlan.IterationInfo != null)
+	{
+		<div class="card mt-4">
+			<div class="card-header">
+				<h5>Informacje o Generowaniu</h5>
+			</div>
+			<div class="card-body">
+				<p><strong>Status:</strong> @mealPlan.IterationInfo.Status</p>
+				<p><strong>Iteracji:</strong> @mealPlan.IterationInfo.IterationCount</p>
+				<p><strong>Rozpoczęto:</strong> @mealPlan.IterationInfo.StartedAt.ToString("dd.MM.yyyy HH:mm")</p>
+				@if (mealPlan.IterationInfo.CompletedAt.HasValue)
+				{
+					<p><strong>Zakończono:</strong> @mealPlan.IterationInfo.CompletedAt.Value.ToString("dd.MM.yyyy HH:mm")</p>
+				}
+			</div>
+		</div>
+	}
+}
+
+@code {
+	[Parameter]
+	public int Id { get; set; }
+
+	private MealPlanResponse? mealPlan;
+	private bool isLoading = true;
+
+	protected override async Task OnInitializedAsync()
+	{
+		mealPlan = await MealPlanningService.GetMealPlanByIdAsync(Id);
+		isLoading = false;
+	}
+}

@@ -1,0 +1,104 @@
+﻿@page "/create-plan"
+@using RecipeAI.Application.DTOs
+@using RecipeAI.Application.Services
+@using RecipeAI.Domain.Enums
+@inject MealPlanningService MealPlanningService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Stwórz Plan Posiłków</PageTitle>
+
+<h2>Stwórz Plan Posiłków</h2>
+
+@if (isGenerating)
+{
+	<div class="alert alert-info">
+		<div class="spinner-border spinner-border-sm me-2" role="status"></div>
+		Generowanie planu... To może potrwać kilka minut.
+	</div>
+}
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+	<div class="alert alert-danger">@errorMessage</div>
+}
+
+<div class="card">
+	<div class="card-body">
+		<EditForm Model="request" OnValidSubmit="GeneratePlan">
+			<div class="mb-3">
+				<label class="form-label">Typ Diety</label>
+				<InputSelect class="form-select" @bind-Value="request.DietType">
+					<option value="@DietType.Standard">Standardowa</option>
+					<option value="@DietType.Vegan">Wegańska</option>
+					<option value="@DietType.Vegetarian">Wegetariańska</option>
+					<option value="@DietType.Keto">Ketogeniczna</option>
+					<option value="@DietType.Mediterranean">Śródziemnomorska</option>
+					<option value="@DietType.HighProtein">Wysokobiałkowa</option>
+					<option value="@DietType.LowCarb">Niskowęglowodanowa</option>
+				</InputSelect>
+			</div>
+
+			<div class="mb-3">
+				<label class="form-label">Liczba Dni (1-30)</label>
+				<InputNumber class="form-control" @bind-Value="request.NumberOfDays" />
+			</div>
+
+			<div class="mb-3">
+				<label class="form-label">Cel Kaloryczny (kcal/dzień)</label>
+				<InputNumber class="form-control" @bind-Value="request.TargetCalories" />
+			</div>
+
+			<div class="mb-3">
+				<label class="form-label">Budżet (PLN)</label>
+				<InputNumber class="form-control" @bind-Value="request.BudgetLimit" />
+			</div>
+
+			<button type="submit" class="btn btn-primary" disabled="@isGenerating">
+				@if (isGenerating)
+				{
+					<span class="spinner-border spinner-border-sm me-2"></span>
+					<text>Generowanie...</text>
+				}
+				else
+				{
+					<text>Generuj Plan</text>
+				}
+			</button>
+		</EditForm>
+	</div>
+</div>
+
+@code {
+	private MealPlanRequest request = new()
+	{
+		DietType = DietType.Standard,
+		NumberOfDays = 7,
+		TargetCalories = 2000,
+		BudgetLimit = 500
+	};
+
+	private bool isGenerating = false;
+	private string? errorMessage;
+
+	private async Task GeneratePlan()
+	{
+		isGenerating = true;
+		errorMessage = null;
+
+		try
+		{
+			var response = await MealPlanningService.GenerateMealPlanAsync(request);
+			Navigation.NavigateTo($"/meal-plan/{response.Id}");
+		}
+		catch (Exception ex)
+		{
+			errorMessage = $"Błąd: {ex.Message}\n\nSzczegóły: {ex.InnerException?.Message}";
+			Console.WriteLine($"Full error: {ex}");
+		}
+		finally
+		{
+			isGenerating = false;
+		}
+	}
+}

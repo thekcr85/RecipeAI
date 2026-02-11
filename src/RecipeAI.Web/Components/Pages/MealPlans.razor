@@ -1,0 +1,77 @@
+﻿@page "/meal-plans"
+@using RecipeAI.Application.DTOs
+@using RecipeAI.Application.Services
+@inject MealPlanningService MealPlanningService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Plany Posiłków</PageTitle>
+
+<h2>Moje Plany Posiłków</h2>
+
+@if (isLoading)
+{
+	<div class="text-center">
+		<div class="spinner-border" role="status">
+			<span class="visually-hidden">Ładowanie...</span>
+		</div>
+	</div>
+}
+else if (mealPlans == null || !mealPlans.Any())
+{
+	<div class="alert alert-info">
+		Nie masz jeszcze żadnych planów posiłków.
+		<a href="/create-plan">Stwórz pierwszy plan</a>
+	</div>
+}
+else
+{
+	<div class="row">
+		@foreach (var plan in mealPlans)
+		{
+			<div class="col-md-6 col-lg-4 mb-3">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="card-title">@plan.Name</h5>
+						<p class="card-text">
+							<strong>Dieta:</strong> @plan.DietType<br />
+							<strong>Dni:</strong> @plan.NumberOfDays<br />
+							<strong>Kalorie:</strong> @plan.TargetCalories kcal<br />
+							<strong>Koszt:</strong> @plan.TotalCost.ToString("F2") PLN
+						</p>
+						<div class="d-flex gap-2">
+							<a href="/meal-plan/@plan.Id" class="btn btn-primary btn-sm">Zobacz</a>
+							<button class="btn btn-danger btn-sm" @onclick="() => DeletePlan(plan.Id)">Usuń</button>
+						</div>
+					</div>
+					<div class="card-footer text-muted">
+						<small>Utworzono: @plan.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+}
+
+@code {
+	private List<MealPlanResponse>? mealPlans;
+	private bool isLoading = true;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadPlans();
+	}
+
+	private async Task LoadPlans()
+	{
+		isLoading = true;
+		mealPlans = await MealPlanningService.GetAllMealPlansAsync();
+		isLoading = false;
+	}
+
+	private async Task DeletePlan(int id)
+	{
+		await MealPlanningService.DeleteMealPlanAsync(id);
+		await LoadPlans();
+	}
+}
