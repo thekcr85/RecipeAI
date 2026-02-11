@@ -1,12 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
+using RecipeAI.Domain.Entities;
+using RecipeAI.Domain.Interfaces;
+using RecipeAI.Infrastructure.Data;
 
-namespace RecipeAI.Infrastructure.Repositories
+namespace RecipeAI.Infrastructure.Repositories;
+
+/// <summary>
+/// Repository for recipe operations
+/// </summary>
+/// <param name="context">Database context</param>
+public class RecipeRepository(RecipeAIDbContext context) : IRecipeRepository
 {
-	internal class RecipeRepository
+	/// <inheritdoc />
+	public async Task<Recipe?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
 	{
+		return await context.Recipes
+			.Include(r => r.Ingredients)
+			.FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
+	}
+
+	/// <inheritdoc />
+	public async Task<IEnumerable<Recipe>> GetByMealPlanIdAsync(int mealPlanId, CancellationToken cancellationToken = default)
+	{
+		return await context.Recipes
+			.Include(r => r.Ingredients)
+			.Where(r => r.MealPlanId == mealPlanId)
+			.OrderBy(r => r.DayNumber)
+			.ThenBy(r => r.MealType)
+			.ToListAsync(cancellationToken);
 	}
 }
