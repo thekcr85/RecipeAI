@@ -1,5 +1,6 @@
 ﻿using RecipeAI.Domain.Entities;
 using RecipeAI.Domain.Enums;
+using RecipeAI.Infrastructure.AI.Helpers;
 using RecipeAI.Infrastructure.Data;
 using System.Text.Json;
 
@@ -48,8 +49,11 @@ public class AgentOrchestrator(
 		try
 		{
 			// Initial generation
-			currentPlanJson = await plannerService.GenerateMealPlanAsync(
+			var rawPlan = await plannerService.GenerateMealPlanAsync(
 				dietType, numberOfDays, targetCalories, budgetLimit, cancellationToken);
+			
+			// Clean JSON response
+			currentPlanJson = JsonResponseHelper.CleanJsonResponse(rawPlan);
 
 			iterationLogs.Add("Iteration 1: Initial plan generated");
 			session.IterationCount = 1;
@@ -58,14 +62,16 @@ public class AgentOrchestrator(
 			for (int i = 0; i < MaxIterations && !approved; i++)
 			{
 				// Nutrition validation
-				var nutritionFeedback = await criticService.ValidateNutritionAsync(
+				var rawNutritionFeedback = await criticService.ValidateNutritionAsync(
 					currentPlanJson, targetCalories, cancellationToken);
+				var nutritionFeedback = JsonResponseHelper.CleanJsonResponse(rawNutritionFeedback);
 
 				iterationLogs.Add($"Iteration {i + 1}: Nutrition feedback - {nutritionFeedback}");
 
 				// Budget optimization
-				var budgetFeedback = await budgetService.OptimizeBudgetAsync(
+				var rawBudgetFeedback = await budgetService.OptimizeBudgetAsync(
 					currentPlanJson, budgetLimit, cancellationToken);
+				var budgetFeedback = JsonResponseHelper.CleanJsonResponse(rawBudgetFeedback);
 
 				iterationLogs.Add($"Iteration {i + 1}: Budget feedback - {budgetFeedback}");
 
@@ -76,8 +82,9 @@ public class AgentOrchestrator(
 				{
 					var combinedFeedback = $"Nutrition: {nutritionFeedback}\nBudget: {budgetFeedback}";
 
-					currentPlanJson = await plannerService.RefineMealPlanAsync(
+					var rawRefinedPlan = await plannerService.RefineMealPlanAsync(
 						currentPlanJson, combinedFeedback, cancellationToken);
+					currentPlanJson = JsonResponseHelper.CleanJsonResponse(rawRefinedPlan);
 
 					session.IterationCount++;
 					iterationLogs.Add($"Iteration {i + 2}: Plan refined");
