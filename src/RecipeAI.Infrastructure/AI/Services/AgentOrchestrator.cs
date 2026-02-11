@@ -1,8 +1,7 @@
-﻿using System.Text.Json;
-using RecipeAI.Domain.Entities;
+﻿using RecipeAI.Domain.Entities;
 using RecipeAI.Domain.Enums;
-using RecipeAI.Domain.Interfaces;
 using RecipeAI.Infrastructure.Data;
+using System.Text.Json;
 
 namespace RecipeAI.Infrastructure.AI.Services;
 
