@@ -1,8 +1,5 @@
-﻿using System.Text.Json;
-using Microsoft.Extensions.AI;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
-using RecipeAI.Domain.Entities;
 using RecipeAI.Domain.Enums;
 using RecipeAI.Infrastructure.AI.Options;
 using RecipeAI.Infrastructure.AI.Prompts;
@@ -12,13 +9,9 @@ namespace RecipeAI.Infrastructure.AI.Services;
 /// <summary>
 /// Service for meal planning agent using Microsoft Agent Framework
 /// </summary>
-/// <param name="chatClient">Chat client for AI communication</param>
-/// <param name="settings">OpenAI settings</param>
-/// <param name="logger">Logger instance</param>
 public class MealPlanningAgentService(
 	IChatClient chatClient,
-	IOptions<OpenAISettings> settings,
-	ILogger<MealPlanningAgentService> logger)
+	IOptions<OpenAISettings> settings)
 {
 	private readonly OpenAISettings _settings = settings.Value;
 
@@ -32,23 +25,16 @@ public class MealPlanningAgentService(
 		decimal budgetLimit,
 		CancellationToken cancellationToken = default)
 	{
-		logger.LogInformation(
-			"Generating meal plan: Diet={Diet}, Days={Days}, Calories={Calories}, Budget={Budget}",
-			dietType, numberOfDays, targetCalories, budgetLimit);
-
 		var messages = new List<ChatMessage>
 		{
 			new(ChatRole.System, SystemPrompts.MealPlannerAgent),
-			new(ChatRole.User, SystemPrompts.BuildPlannerRequest(dietType, numberOfDays, targetCalories, budgetLimit))
+			new(ChatRole.User, SystemPrompts.BuildPlannerRequest(
+				dietType, numberOfDays, targetCalories, budgetLimit))
 		};
 
-		var response = await chatClient.CompleteAsync(messages, cancellationToken: cancellationToken);
+		var response = await chatClient.GetResponseAsync(messages, cancellationToken: cancellationToken);
 
-		var result = response.Message.Text ?? string.Empty;
-
-		logger.LogInformation("Meal plan generated successfully");
-
-		return result;
+		return response.Messages.LastOrDefault()?.Text ?? string.Empty;
 	}
 
 	/// <summary>
@@ -59,16 +45,14 @@ public class MealPlanningAgentService(
 		string feedback,
 		CancellationToken cancellationToken = default)
 	{
-		logger.LogInformation("Refining meal plan based on feedback");
-
 		var messages = new List<ChatMessage>
 		{
 			new(ChatRole.System, SystemPrompts.MealPlannerAgent),
 			new(ChatRole.User, $"Aktualny plan:\n{currentPlan}\n\nOpinia:\n{feedback}\n\nPopraw plan zgodnie z opinią.")
 		};
 
-		var response = await chatClient.CompleteAsync(messages, cancellationToken: cancellationToken);
+		var response = await chatClient.GetResponseAsync(messages, cancellationToken: cancellationToken);
 
-		return response.Message.Text ?? string.Empty;
+		return response.Messages.LastOrDefault()?.Text ?? string.Empty;
 	}
 }
