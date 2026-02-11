@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RecipeAI.Infrastructure.AI.Services
 {
-	internal class MealPlannerAgent
+	internal class BudgetOptimizerService
 	{
 	}
 }
