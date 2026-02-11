@@ -20,6 +20,8 @@ public static class SystemPrompts
         - Układaj posiłki tak, aby były zbilansowane przez cały dzień
         - Uwzględniaj różnorodność składników i smaków
         
+        WAŻNE: Odpowiedz TYLKO czystym JSONem, BEZ żadnych dodatkowych znaków, BEZ markdown, BEZ ```json ani ```.
+        
         ODPOWIEDZ w formacie JSON:
         {
           "mealPlan": {
@@ -63,6 +65,8 @@ public static class SystemPrompts
         - Różnorodność składników odżywczych
         - Odpowiednia ilość posiłków w ciągu dnia
         
+        WAŻNE: Odpowiedz TYLKO czystym JSONem, BEZ markdown, BEZ ```json ani ```.
+        
         ODPOWIEDZ w formacie JSON:
         {
           "approved": true/false,
@@ -85,6 +89,8 @@ public static class SystemPrompts
         - Zaproponuj tańsze alternatywy składników o podobnych wartościach odżywczych
         - Wskaż sezonowe produkty które są tańsze
         - Sugeruj zakupy hurtowe dla często używanych składników
+        
+        WAŻNE: Odpowiedz TYLKO czystym JSONem, BEZ markdown, BEZ ```json ani ```.
         
         ODPOWIEDZ w formacie JSON:
         {
