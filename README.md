@@ -1,4 +1,4 @@
-# RecipeAI ???
+ï»¿# RecipeAI ???
 
 > AI-powered meal planning with multi-agent refinement using OpenAI GPT-4o
 
@@ -238,7 +238,7 @@ dotnet clean
 
 ## Author
 
-**Micha³ B¹kiewicz** • [GitHub](https://github.com/thekcr85)
+**MichaÅ‚ BÄ…kiewicz** â€¢ [GitHub](https://github.com/thekcr85)
 
 Project demonstrating:
 - **Clean Architecture** with proper layer separation
