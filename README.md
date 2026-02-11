@@ -1,4 +1,4 @@
-﻿# RecipeAI ???
+﻿# RecipeAI 🍽️
 
 > AI-powered meal planning with multi-agent refinement using OpenAI GPT-4o
 
@@ -12,12 +12,12 @@
 
 A Blazor Server app that generates personalized meal plans with AI multi-agent collaboration:
 
-- ?? **Planner Agent** generates meal plans for a chosen diet and goals
-- ?? **Nutrition Critic** validates macros and overall balance
-- ?? **Budget Optimizer** keeps plans within budget and suggests alternatives
-- ?? Iterative refinement (up to 3 iterations)
-- ?? Nutrition summaries with macro breakdown
-- ?? Plans saved in MySQL
+- 🤖 **Planner Agent** generates meal plans for a chosen diet and goals
+- 🔍 **Nutrition Critic** validates macros and overall balance
+- 💰 **Budget Optimizer** keeps plans within budget and suggests alternatives
+- 🔁 Iterative refinement (up to 3 iterations)
+- 📊 Nutrition summaries with macro breakdown
+- 💾 Plans saved in MySQL
 
 ## Tech Stack
 
@@ -53,7 +53,7 @@ cp .env.example .env
 docker compose up
 
 # 4. Open browser
-# ? http://localhost:5000
+# → http://localhost:5000
 ```
 
 That's it! The app will:
@@ -110,40 +110,40 @@ dotnet run
 
 ```
 src/
-??? RecipeAI.Domain/              # ?? Core (Entities, Enums, Interfaces)
-??? RecipeAI.Application/         # ?? Business Logic
-??? RecipeAI.Infrastructure/      # ?? Data + AI Services
-??? RecipeAI.Web/                 # ?? Blazor UI
-    ??? Components/Pages/
-        ??? Home.razor           # Landing page
-        ??? CreatePlan.razor     # Meal plan generator
-        ??? MealPlans.razor      # Plan list
-        ??? MealPlanDetails.razor # Plan details
+├── RecipeAI.Domain/              # 🎯 Core (Entities, Enums, Interfaces)
+├── RecipeAI.Application/         # 💼 Business Logic
+├── RecipeAI.Infrastructure/      # 🔧 Data + AI Services
+└── RecipeAI.Web/                 # 🎨 Blazor UI
+    └── Components/Pages/
+        ├── Home.razor           # Landing page
+        ├── CreatePlan.razor     # Meal plan generator
+        ├── MealPlans.razor      # Plan list
+        └── MealPlanDetails.razor # Plan details
 ```
 
-**Clean Architecture** - dependencies flow inward (Web ? Infra ? App ? Domain)
+**Clean Architecture** - dependencies flow inward (Web → Infra → App → Domain)
 
 ## How Multi-Agent Refinement Works
 
 ```
 User Request: Diet=Keto, Days=7, Calories=2000, Budget=500PLN
 
-???????????????????????????????????????
-? Iteration 1                         ?
-???????????????????????????????????????
-? Planner: initial plan               ?
-? Critic: ? macros off                ?
-? Optimizer: ? budget too high         ?
-???????????????????????????????????????
-         ?
-???????????????????????????????????????
-? Iteration 2                         ?
-???????????????????????????????????????
-? Planner: adjusted plan              ?
-? Critic: ? approved                  ?
-? Optimizer: ? within budget          ?
-???????????????????????????????????????
-         ?
+┌─────────────────────────────────────┐
+│ Iteration 1                         │
+├─────────────────────────────────────┤
+│ Planner: initial plan               │
+│ Critic: ❌ macros off                │
+│ Optimizer: ❌ budget too high         │
+└─────────────────────────────────────┘
+         ↓
+┌─────────────────────────────────────┐
+│ Iteration 2                         │
+├─────────────────────────────────────┤
+│ Planner: adjusted plan              │
+│ Critic: ✅ approved                  │
+│ Optimizer: ✅ within budget          │
+└─────────────────────────────────────┘
+         ↓
     Final plan saved
 ```
 
@@ -257,4 +257,4 @@ MIT License - Open source demonstration project
 
 ---
 
-**Get Started:** `docker compose up` ??
+**Get Started:** `docker compose up` 🚀
