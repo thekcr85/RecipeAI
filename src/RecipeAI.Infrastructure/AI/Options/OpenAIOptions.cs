@@ -13,7 +13,7 @@ public class OpenAIOptions
 	/// <summary>
 	/// Gets or sets the model name to use (e.g., gpt-4o, gpt-4)
 	/// </summary>
-	public string Model { get; set; } = "gpt-4o";
+	public string Model { get; set; } = "gpt-4o-mini";
 
 	/// <summary>
 	/// Gets or sets the maximum number of tokens for completions
