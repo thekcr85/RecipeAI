@@ -1,5 +1,8 @@
+using Microsoft.Agents.AI;
 using Microsoft.Extensions.Options;
+using OpenAI;
 using OpenAI.Chat;
+using RecipeAI.Application.Interfaces.Agents;
 using RecipeAI.Domain.Enums;
 using RecipeAI.Infrastructure.AI.Options;
 using RecipeAI.Infrastructure.AI.Prompts;
@@ -9,14 +12,19 @@ namespace RecipeAI.Infrastructure.AI.Agents;
 /// <summary>
 /// AI Agent responsible for generating meal plans
 /// </summary>
-public class MealPlanningAgent : BaseAgent
+public class MealPlanningAgent : IMealPlanningAgent
 {
-	public MealPlanningAgent(IOptions<OpenAIOptions> options) : base(options)
-	{
-	}
+	private readonly AIAgent _agent;
 
-	protected override string SystemPrompt => SystemPrompts.MealPlannerAgent;
-	protected override string AgentName => "MealPlanner";
+	public MealPlanningAgent(IOptions<OpenAIOptions> options)
+	{
+		var opts = options.Value;
+		_agent = new OpenAIClient(opts.ApiKey)
+			.GetChatClient(opts.Model)
+			.AsAIAgent(
+				name: "MealPlanner",
+				instructions: SystemPrompts.MealPlannerAgent);
+	}
 
 	/// <summary>
 	/// Generates a meal plan based on user requirements
@@ -28,25 +36,9 @@ public class MealPlanningAgent : BaseAgent
 		decimal budgetLimit,
 		CancellationToken cancellationToken = default)
 	{
-		var chatClient = Client.GetChatClient(Options.Model);
-
 		var userPrompt = SystemPrompts.BuildPlannerRequest(dietType, numberOfDays, targetCalories, budgetLimit);
-
-		var messages = new List<ChatMessage>
-		{
-			new SystemChatMessage(SystemPrompt),
-			new UserChatMessage(userPrompt)
-		};
-
-		var chatOptions = new ChatCompletionOptions
-		{
-			MaxOutputTokenCount = Options.MaxTokens,
-			Temperature = (float)Options.Temperature
-		};
-
-		var response = await chatClient.CompleteChatAsync(messages, chatOptions, cancellationToken);
-
-		return response.Value.Content[0].Text;
+		var response = await _agent.RunAsync(userPrompt, cancellationToken: cancellationToken);
+		return response.Text;
 	}
 
 	/// <summary>
@@ -57,23 +49,17 @@ public class MealPlanningAgent : BaseAgent
 		string feedback,
 		CancellationToken cancellationToken = default)
 	{
-		var chatClient = Client.GetChatClient(Options.Model);
+		var userPrompt = $"""
+            Current plan:
+            {currentPlan}
 
-		var messages = new List<ChatMessage>
-		{
-			new SystemChatMessage(SystemPrompt),
-			new UserChatMessage($"Current plan:\n{currentPlan}"),
-			new UserChatMessage($"Feedback to address:\n{feedback}\n\nPlease generate an improved plan addressing this feedback.")
-		};
+            Feedback to address:
+            {feedback}
 
-		var chatOptions = new ChatCompletionOptions
-		{
-			MaxOutputTokenCount = Options.MaxTokens,
-			Temperature = (float)Options.Temperature
-		};
+            Please generate an improved plan addressing this feedback.
+            """;
 
-		var response = await chatClient.CompleteChatAsync(messages, chatOptions, cancellationToken);
-
-		return response.Value.Content[0].Text;
+		var response = await _agent.RunAsync(userPrompt, cancellationToken: cancellationToken);
+		return response.Text;
 	}
 }
