@@ -1,7 +1,7 @@
+using RecipeAI.Application.Interfaces;
 using RecipeAI.Domain.Entities;
 using RecipeAI.Domain.Enums;
 using RecipeAI.Domain.Interfaces;
-using RecipeAI.Infrastructure.AI.Services;
 
 namespace RecipeAI.Infrastructure.Services;
 
@@ -9,7 +9,7 @@ namespace RecipeAI.Infrastructure.Services;
 /// Implementation of meal planning service using AI agent orchestration
 /// </summary>
 /// <param name="orchestrator">AI agent orchestrator</param>
-public class MealPlanningDomainService(AgentOrchestrator orchestrator) : IMealPlanningService
+public class MealPlanningDomainService(IAgentOrchestrator orchestrator) : IMealPlanningService
 {
 	/// <summary>
 	/// Generates a meal plan using AI agents with iterative refinement
