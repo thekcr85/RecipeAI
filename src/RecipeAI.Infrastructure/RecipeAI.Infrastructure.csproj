@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\RecipeAI.Application\RecipeAI.Application.csproj" />
     <ProjectReference Include="..\RecipeAI.Domain\RecipeAI.Domain.csproj" />
   </ItemGroup>
 
