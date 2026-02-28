@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using RecipeAI.Application.Interfaces;
+using RecipeAI.Application.Interfaces.Agents;
+using RecipeAI.Application.Services;
 using RecipeAI.Domain.Interfaces;
 using RecipeAI.Infrastructure.AI.Agents;
 using RecipeAI.Infrastructure.AI.Options;
-using RecipeAI.Infrastructure.AI.Services;
 using RecipeAI.Infrastructure.Data;
 using RecipeAI.Infrastructure.Repositories;
 using RecipeAI.Infrastructure.Services;
@@ -27,6 +29,7 @@ public static class DependencyInjection
 		// Repositories
 		services.AddScoped<IMealPlanRepository, MealPlanRepository>();
 		services.AddScoped<IRecipeRepository, RecipeRepository>();
+		services.AddScoped<IPlanningSessionRepository, PlanningSessionRepository>();
 
 		// Domain Services
 		services.AddScoped<IMealPlanningService, MealPlanningDomainService>();
@@ -35,12 +38,12 @@ public static class DependencyInjection
 		services.Configure<OpenAIOptions>(configuration.GetSection("OpenAI"));
 
 		// AI Agents using Microsoft Agent Framework
-		services.AddScoped<MealPlanningAgent>();
-		services.AddScoped<NutritionCriticAgent>();
-		services.AddScoped<BudgetOptimizerAgent>();
-		
+		services.AddScoped<IMealPlanningAgent, MealPlanningAgent>();
+		services.AddScoped<INutritionCriticAgent, NutritionCriticAgent>();
+		services.AddScoped<IBudgetOptimizerAgent, BudgetOptimizerAgent>();
+
 		// Agent Orchestrator
-		services.AddScoped<AgentOrchestrator>();
+		services.AddScoped<IAgentOrchestrator, AgentOrchestrator>();
 
 		return services;
 	}
